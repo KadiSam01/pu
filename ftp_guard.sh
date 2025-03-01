@@ -1,4 +1,3 @@
-explain every line of this code
 #!/bin/bash
 
 # Configuration
@@ -81,7 +80,13 @@ verify_ftp_read() {
             cp "$BACKUP_FILE" "$FILE_PATH"
         fi
     done
-    chattr +i "$FTP_DIR"/*
+}
+
+# 🔄 Ensure FTP directory is writable
+set_ftp_permissions() {
+    chmod 770 "$FTP_DIR"
+    chown ftpuser:ftpgroup "$FTP_DIR"
+    setfacl -m u:ftpuser:rwx "$FTP_DIR"
 }
 
 # 🔄 Protect script from tampering
@@ -106,8 +111,9 @@ while true; do
     restore_vsftpd_config
     secure_user_list
     verify_ftp_read
+    set_ftp_permissions  # Allow writing
     protect_script
     ensure_script_persistence
     restart_ftp
-    sleep 30
+    sleep 1800
 done
