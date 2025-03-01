@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Define the FTP group and directory
+FTP_GROUP="ftpuser"
+FTP_DIR="/mnt/files"
+
+# Ensure the ftpuser group exists
+if ! grep -q "^$FTP_GROUP:" /etc/group; then
+    echo "Creating group: $FTP_GROUP"
+    sudo groupadd "$FTP_GROUP"
+fi
+
+# Change the group ownership of /mnt/files
+echo "Setting group ownership of $FTP_DIR to $FTP_GROUP..."
+sudo chown -R :$FTP_GROUP "$FTP_DIR"
+
+# Set proper permissions
+echo "Setting permissions for $FTP_DIR..."
+sudo chmod -R 770 "$FTP_DIR"
+
+# Ensure ACLs are applied so the group retains access
+echo "Applying ACL permissions..."
+sudo setfacl -m g:$FTP_GROUP:rwx "$FTP_DIR"
+
+echo "✅ /mnt/files is now owned by group $FTP_GROUP with full access."
